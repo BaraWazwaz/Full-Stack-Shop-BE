@@ -1,27 +1,14 @@
-import express, { Request, Response } from 'express';
+import express, { Express, Request, Response } from 'express';
+import env from '@/config/env'
+import middleware from '@/config/middleware';
+import v1 from '@/services/v1/route';
 
-const app = express();
-const port = process.env.PORT || 8080;
+const app: Express = express();
+const { BACKEND_PORT: PORT, API_URL: URL } = env;
 
-app.use((req, res, next) => {
-  res.header(
-    'Access-Control-Allow-Origin',
-    '*'
-  );
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept'
-  );
-  next();
-});
+app.use(middleware.security);
+app.use(middleware.parsing);
 
-app.get('/api/health', (req: Request, res: Response) => {
-  res.status(200).json({
-    status: "healthy",
-    framework: "TypeScript Express"
-  });
-});
+app.use('/api/v1', v1);
 
-app.listen(port, () => {
-  console.log(`Backend listening internally on port ${port}`);
-});
+app.listen(PORT, () => console.log(`[server]: listening on ${URL}`));
